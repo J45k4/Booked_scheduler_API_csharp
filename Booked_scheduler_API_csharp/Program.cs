@@ -39,14 +39,34 @@ namespace Booked_scheduler_API_csharp
             //    //resourceTypeId = 1,
             //    //customAttributes = new List<Attribute>()
             //});
+            //api.CreateResource(new CreateResourceRequest()
+            //{
+            //    name = "Uusi resurssi",
+            //    scheduleId = 1,
+            //    allowMultiday = 0
+            //});
+
+            //api.UpdateResource(new UpdateResourceRequest()
+            //{
+            //    resourceId = 1,
+            //    name = "uusi nimi",
+            //    allowMultiday = 0,
+            //    scheduleId = 1
+            //});
+
+            api.DeleteResource(new DeleteResourceRequest()
+            {
+                resourceId = 1
+            });
+
             //api.GetAllResources();
             //api.GetAllSchedules();
-            api.UpdateResource(1, new ResourceModel()
-            {
-                name ="testipaivitus",
-                scheduleId = 1,
-                allowMultiday = 0
-            });
+            //api.UpdateResource(1, new ResourceModel()
+            //{
+            //    name ="testipaivitus",
+            //    scheduleId = 1,
+            //    allowMultiday = 0
+            //});
             Console.ReadKey();
         }
 

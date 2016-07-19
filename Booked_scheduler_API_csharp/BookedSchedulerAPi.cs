@@ -13,7 +13,6 @@ namespace Booked_scheduler_API_csharp
     {
         private AuthenticationResponse authRes;
 
-        private string url;
         private string baseUrl;
         private string user;
         private string password;
@@ -23,7 +22,7 @@ namespace Booked_scheduler_API_csharp
             this.user = user;
             this.password = password;
             this.baseUrl = baseUrl;
-            Autheticate(url, user, password);
+            Autheticate(baseUrl, user, password);
         }
 
         public bool Autheticate(string baseUrl, string user, string password)
@@ -51,80 +50,65 @@ namespace Booked_scheduler_API_csharp
             }
         }
 
-        public bool CreateResource(ResourceRequest resource)
+        public bool CreateResource(CreateResourceRequest request)
         {
-            if (DateTime.Now > authRes.sessionExpires)
+            if (request.scheduleId != null && request.name != "" && request.allowMultiday != null)
             {
-                Console.WriteLine("not autheticated");
-                if (!Autheticate(this.url, this.user, this.password)) return false;
-            }
-            string createResourceUrl = this.baseUrl + "/Resources/";
-            //Console.WriteLine(authRes.sessionToken);
-            //Console.WriteLine(authRes.userId);
-            //Console.WriteLine(createResourceUrl);
-            //Console.WriteLine(this.user);
-            //Console.WriteLine(this.password);
-            //Console.ReadKey();
-           
-            var createResourceHttpRequest = (HttpWebRequest)WebRequest.Create(createResourceUrl);
-            createResourceHttpRequest.ContentType = "application/json";
-            createResourceHttpRequest.Method = "POST";
-            //createResourceHttpRequest.Headers["X-phpScheduleIt-SessionToken"] = authRes.sessionToken;
-            createResourceHttpRequest.Headers.Add("X-Booked-SessionToken", authRes.sessionToken);
-            createResourceHttpRequest.Headers.Add("X-Booked-UserId", authRes.userId.ToString());
-            ///createResourceHttpRequest.Headers["X-phpScheduleIt-UserId"] = authRes.userId.ToString();
-            using (var streamWriter = new StreamWriter(createResourceHttpRequest.GetRequestStream()))
+                if (DateTime.Now > authRes.sessionExpires)
+                {
+                    Console.WriteLine("not autheticated");
+                    if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
+                }
+                string createResourceUrl = this.baseUrl + "/Resources/";
+                ApiHttpRequest httpRequest = new ApiHttpRequest(createResourceUrl, authRes.sessionToken, authRes.userId);
+                httpRequest.Method = "POST";
+
+                httpRequest.Write(request);
+                CreateResourceResponse response = httpRequest.Read<CreateResourceResponse>();
+                return true;
+            } else
             {
-                string json = JsonConvert.SerializeObject(resource);
-                streamWriter.Write(json);
-                streamWriter.Flush();
-                streamWriter.Close();
+                return false;
             }
-            var httpResponse = (HttpWebResponse)createResourceHttpRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                var result = streamReader.ReadToEnd();
-                Console.WriteLine(result);
-            }
-            return true;
         }
 
-        public bool UpdateResource(int id, ResourceModel model)
+        public bool UpdateResource(UpdateResourceRequest request)
         {
-            if (DateTime.Now > authRes.sessionExpires)
+            if (request.scheduleId != null && request.name != "" && request.allowMultiday != null && request.resourceId != null)
             {
-                Console.WriteLine("not autheticated");
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (DateTime.Now > authRes.sessionExpires)
+                {
+                    Console.WriteLine("not autheticated");
+                    if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
+                }
+                string updateResourceUrl = this.baseUrl + "/Resources/" + request.resourceId.ToString();
+                ApiHttpRequest httpRequest = new ApiHttpRequest(updateResourceUrl, authRes.sessionToken, authRes.userId);
+                httpRequest.Method = "POST";
+                httpRequest.Write(request);
+                UpdateResourceResponse response = httpRequest.Read<UpdateResourceResponse>();
+
+                return true;
+            } else
+            {
+                return false;
             }
-            string updateResourceUrl = this.baseUrl + "/Resources/" + id.ToString();
-            ApiHttpRequest request = new ApiHttpRequest(updateResourceUrl, authRes.sessionToken, authRes.userId);
-            request.Method = "POST";
-            //request.Write(new ResourceModel()
-            //{
-            //    allowMultiday = 0,
-            //    //autoAssignPermissions = false,
-            //    //contact = null,
-            //    //customAttributes = new List<Attribute>(),
-            //    //description = "kuvaus",
-            //    //location = null,
-            //    //maxLength = null,
-            //    //maxNotice = "",
-            //    //maxParticipants = null,
-            //    //minLength = "",
-            //    //minNotice = null,
-            //    name = "testimuutos3",
-            //    //notes = "notes",
-            //    //requiresApproval = false,
-            //    //resourceId = 1,
-            //    //resourceTypeId = null,
-            //    scheduleId = 1,
-            //    //sortOrder = null,
-            //    //statusId = 1,
-            //    //statusReasonId = null
-            //});
-            request.Write(model);
-            UpdateResourceResponse response = request.Read<UpdateResourceResponse>();
-            return true;
+        }
+
+        public bool DeleteResource(DeleteResourceRequest request)
+        {
+            if (request.resourceId != null)
+            {
+                var deleteResourceUrl = this.baseUrl + "/Resources/" + request.resourceId.ToString();
+                Console.WriteLine(deleteResourceUrl);
+                ApiHttpRequest httpRequest = new ApiHttpRequest(deleteResourceUrl, authRes.sessionToken, authRes.userId);
+                httpRequest.Method = "DELETE";
+                DeleteResourceResponse response = httpRequest.Read<DeleteResourceResponse>();
+                return true;
+            } else
+            {
+                return false;
+            }
+            
         }
 
         public bool GetAllResources()
@@ -132,20 +116,12 @@ namespace Booked_scheduler_API_csharp
             if (DateTime.Now > authRes.sessionExpires)
             {
                 Console.WriteLine("not autheticated");
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
             string getAllResourcesUrl = this.baseUrl + "/Resources/";
             ApiHttpRequest request = new ApiHttpRequest(getAllResourcesUrl, authRes.sessionToken, authRes.userId);
             request.Method = "GET";
             GetAllResourcesRequest model = request.Read<GetAllResourcesRequest>();
-            string updateResourceUrl = this.baseUrl + "/Resources/" + model.resources[0].resourceId.ToString();
-            ApiHttpRequest request2 = new ApiHttpRequest(updateResourceUrl, authRes.sessionToken, authRes.userId);
-            request2.Method = "POST";
-            model.resources[0].customAttributes.Clear();
-            model.resources[0].name = "testausmuutos2";
-            Console.WriteLine("Model");
-            request2.Write(model.resources[0]);
-            UpdateResourceResponse res = request2.Read<UpdateResourceResponse>();
             //Console.WriteLine(model.links[0].href);
             return true;
         }
@@ -155,7 +131,7 @@ namespace Booked_scheduler_API_csharp
             return true;
         }
 
-        public bool  GetStatusReasons()
+        public bool GetStatusReasons()
         {
             return true;
         }
@@ -184,7 +160,7 @@ namespace Booked_scheduler_API_csharp
         {
             if (DateTime.Now > authRes.sessionExpires)
             {
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
 
             string getAllAccessoriesUrl = this.baseUrl + "/Accessories/";
@@ -208,7 +184,7 @@ namespace Booked_scheduler_API_csharp
         {
             if (DateTime.Now > authRes.sessionExpires)
             {
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
             string getAccessoryUrl = this.baseUrl + "/Accessories";
 
@@ -231,7 +207,7 @@ namespace Booked_scheduler_API_csharp
         {
             if (DateTime.Now > authRes.sessionExpires)
             {
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
             string createCustomAttributeUrl = this.baseUrl + "/Attributes/";
 
@@ -257,7 +233,7 @@ namespace Booked_scheduler_API_csharp
         {
             if (DateTime.Now > authRes.sessionExpires)
             {
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
             string updateCustomAttributeUrl = this.baseUrl + "/Attributes/";
 
@@ -294,8 +270,9 @@ namespace Booked_scheduler_API_csharp
             return true;
         }
 
-        public bool CreateReservation()
+        public bool CreateReservation(CreateReservationRequest request)
         {
+
             return true;
         }
 
@@ -328,7 +305,7 @@ namespace Booked_scheduler_API_csharp
         {
             if (DateTime.Now > authRes.sessionExpires)
             {
-                if (!Autheticate(this.url, this.user, this.password)) return false;
+                if (!Autheticate(this.baseUrl, this.user, this.password)) return false;
             }
             string getAllSchedulesUrl = this.baseUrl + "/Schedules/";
 
