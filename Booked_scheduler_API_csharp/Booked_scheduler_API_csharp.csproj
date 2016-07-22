@@ -39,6 +39,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="abtract\Resurssi.cs" />
+    <Compile Include="abtract\Tapahtuma.cs" />
     <Compile Include="AccessoryModel.cs" />
     <Compile Include="ApiHttpRequest.cs" />
     <Compile Include="Attribute.cs" />
@@ -61,6 +65,7 @@
     <Compile Include="CreateResourceResponse.cs" />
     <Compile Include="DeleteResourceRequest.cs" />
     <Compile Include="DeleteResourceResponse.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="GetAllResourcesRequest.cs" />
     <Compile Include="GetAllSchedulesResponse.cs" />
     <Compile Include="GetReservationResponse.cs" />

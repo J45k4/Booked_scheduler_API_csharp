@@ -18,7 +18,7 @@ namespace Booked_scheduler_API_csharp
         //public DateTime endDateTime { get { return enddate; } set { enddate = value; } }
         public string endDateTime { get
             {
-                return enddate.ToString("yyyy-mm-ddTHH:mm:sszzz");
+                return enddate.ToString("yyyy-MM-ddTHH:mm:ss+0300");
             }
         }
         public List<int> invitees { get; set; }
@@ -31,7 +31,7 @@ namespace Booked_scheduler_API_csharp
         public string startDateTime {
             get
             {
-                return startdate.ToString("yyyy-mm-ddTHH:mm:sszzz");
+                return startdate.ToString("yyyy-MM-ddTHH:mm:ss+0300");
             }
         }
         public string title { get; set; }
