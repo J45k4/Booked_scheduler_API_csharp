@@ -272,13 +272,30 @@ namespace Booked_scheduler_API_csharp
 
         public bool CreateReservation(CreateReservationRequest request)
         {
-
+            string createReservationUrl = this.baseUrl + "/Reservations/";
+            ApiHttpRequest httpRequest = new ApiHttpRequest(createReservationUrl, authRes.sessionToken, authRes.userId);
+            httpRequest.Method = "POST";
+            httpRequest.Write(request);
+            CreateReservationResponse response = httpRequest.Read<CreateReservationResponse>();
             return true;
         }
 
-        public bool UpdateReservation()
+        public bool UpdateReservation(ReservationModel request)
         {
-            return true;
+            if (request.referenceNumber != null) {
+                string updateReservationUrl = this.baseUrl + "/Reservations/" + request.referenceNumber;
+
+                ApiHttpRequest httpRequest = new ApiHttpRequest(updateReservationUrl, authRes.sessionToken, authRes.userId);
+                httpRequest.Method = "POST";
+
+                httpRequest.Write(request);
+                UpdateReservationResponse response = httpRequest.Read<UpdateReservationResponse>();
+
+                return true;
+            } else
+            {
+                return true;
+            }
         }
 
         public bool ApproveReservation()
@@ -286,9 +303,21 @@ namespace Booked_scheduler_API_csharp
             return true;
         }
 
-        public bool GetReservations()
+        public List<Reservation> GetReservations(GetReservationsRequest request)
         {
-            return true;
+            var getReservationsUrl = this.baseUrl + "/Reservations/";
+            ApiHttpRequest httpRequest = new ApiHttpRequest(getReservationsUrl, authRes.sessionToken, authRes.userId);
+            httpRequest.Method = "GET";
+            GetReservationResponse response = httpRequest.Read<GetReservationResponse>();
+            List<Reservation> reservations = new List<Reservation>();
+            foreach(ReservationModel reservationModel in response.reservations)
+            {
+                reservations.Add(new Reservation(this)
+                {
+                    Model = reservationModel
+                });
+            }
+            return reservations;
         }
 
         public bool GetReservation()

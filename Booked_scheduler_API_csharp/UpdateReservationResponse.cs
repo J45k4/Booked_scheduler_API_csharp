@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Booked_scheduler_API_csharp
 {
-    public class CreateReservationRequest : ReservationModel
+    public class UpdateReservationResponse
     {
+        
     }
 }
